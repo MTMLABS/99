@@ -88,32 +88,70 @@
       .mybox > li > h2.done {
         text-decoration: line-through;
       }
+
+      .completed-text {
+        color: green;
+        font-weight: bold;
+        margin-left: 10px;
+      }
     </style>
     <script>
       $(document).ready(function () {
         show_bucket();
       });
+
       function show_bucket() {
-        fetch("/bucket")
-          .then((res) => res.json())
-          .then((data) => {
-            console.log(data);
-            alert(data["msg"]);
-          });
-      }
+    fetch("/bucket")
+        .then((res) => res.json())
+        .then((data) => {
+            let rows = data["result"];
+            $("#bucket-list").empty();
+            rows.forEach((a) => {
+                let bucket = a["bucket"];
+                let temp_html = `<li>
+                                    <h2>✅ ${bucket}</h2>
+                                    <button onclick="complete_bucket(this)" class="btn btn-outline-success">완료</button>
+                                </li>`;
+                $("#bucket-list").append(temp_html);
+            });
+        });
+}
+
+      // function show_bucket() {
+      //   fetch("/bucket")
+      //     .then((res) => res.json())
+      //     .then((data) => {
+      //       let rows = data["result"];
+      //       $("#bucket-list").empty();
+      //       rows.forEach((a) => {
+      //         let bucket = a["bucket"];
+      //         let temp_html = `<li>
+      //                             <h2>✅ ${bucket}</h2>
+      //                         </li>`;
+      //         $("#bucket-list").append(temp_html);
+      //       });
+      //     });
+      // }
 
       function save_bucket() {
-        let bucket = $(`#bucket`).val();
+        let bucket = $("#bucket").val();
 
         let formData = new FormData();
         formData.append("bucket_give", bucket);
 
         fetch("/bucket", { method: "POST", body: formData })
-          .then((response) => response.json())
+          .then((res) => res.json())
           .then((data) => {
             alert(data["msg"]);
-            // window.location.reload();
+            window.location.reload();
           });
+      }
+
+      function complete_bucket(target) {
+
+        let completedText = '<span class="completed-text">완료!!</span>';
+        $(target).parent().find("h2").append(completedText);
+        $(target).remove(); 
       }
     </script>
   </head>
@@ -140,7 +178,10 @@
     </div>
     <div class="mybox" id="bucket-list">
       <li>
-        <h2>✅ 호주에서 스카이다이빙 하기</h2>
+          <h2>✅ 호주에서 스카이다이빙 하기</h2>
+          <button onclick="complete_bucket(this)" class="btn btn-outline-success">완료</button>
+      </li>
+      
       </li>
     </div>
   </body>
